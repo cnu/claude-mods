@@ -1,0 +1,39 @@
+{
+  "name": "savings-proof",
+  "version": "0.2.0",
+  "description": "Adds /savings: a pane that totals what the other mods saved (today, this chat, per mod, last 10 events) from their shared ledger, avoided, helper and estimated dollars kept as separate numbers, every figure labelled an estimate. Optional status line entry.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "showStatus": {
+      "type": "boolean",
+      "title": "Show status line entry",
+      "description": "Pin a compact line such as 'avoided ~12k, helper ~1.5k, ~$0.03 est. today' under the prompt. It is an estimate read from the mods' ledger files.",
+      "default": false
+    },
+    "currency": {
+      "type": "string",
+      "title": "Currency code",
+      "description": "Label for the money figures, for example USD, EUR, GBP or INR. Ledger values are in US dollars; set 'USD per unit rate' below to convert.",
+      "default": "USD"
+    },
+    "unitsPerUsd": {
+      "type": "number",
+      "title": "Units of your currency per 1 USD",
+      "description": "Multiplier applied to the ledger's dollar estimates. Leave at 1 for USD. There is no live exchange rate: you set it.",
+      "default": 1,
+      "min": 0.0001,
+      "max": 1000000
+    },
+    "ledgerDays": {
+      "type": "number",
+      "title": "Ledger window (days)",
+      "description": "Ignore ledger files last modified, and lines dated, more than this many days ago. 0 means no limit.",
+      "default": 90,
+      "min": 0,
+      "max": 3650
+    }
+  }
+}

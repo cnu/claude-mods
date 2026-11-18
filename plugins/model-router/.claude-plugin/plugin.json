@@ -1,0 +1,86 @@
+{
+  "name": "model-router",
+  "version": "0.1.0",
+  "description": "Runs each subagent on the cheapest model that can do its task well: a cheap model classifies the task as light, standard or heavy, and the spawn's model is moved down only on high confidence and up on moderate confidence. Never touches the main chat's model.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "userConfig": {
+    "lightModel": {
+      "type": "string",
+      "title": "Model for light tasks",
+      "description": "Alias or full model id used for tasks classified as light (lookups, simple reads, mechanical edits).",
+      "default": "haiku"
+    },
+    "standardModel": {
+      "type": "string",
+      "title": "Model for standard tasks",
+      "description": "Alias or full model id used for tasks classified as standard (ordinary feature work, focused debugging).",
+      "default": "sonnet"
+    },
+    "heavyModel": {
+      "type": "string",
+      "title": "Model for heavy tasks",
+      "description": "Alias or full model id used for tasks classified as heavy (hard design, tricky multi-file reasoning).",
+      "default": "opus"
+    },
+    "minDowngradeConfidence": {
+      "type": "number",
+      "title": "Confidence needed to move to a cheaper model",
+      "description": "The classifier's confidence (0 to 1) must be at least this before a subagent is moved to a cheaper model than it would have used.",
+      "default": 0.8,
+      "min": 0,
+      "max": 1
+    },
+    "minUpgradeConfidence": {
+      "type": "number",
+      "title": "Confidence needed to move to a stronger model",
+      "description": "The classifier's confidence (0 to 1) must be at least this before a subagent is moved to a stronger model. Lower than the downgrade bar on purpose: under-powering a task costs more than overspending on it.",
+      "default": 0.4,
+      "min": 0,
+      "max": 1
+    },
+    "classifyTimeoutMs": {
+      "type": "number",
+      "title": "Classifier time limit (ms)",
+      "description": "Hard limit on the classification call. On timeout the subagent starts unchanged.",
+      "default": 4000,
+      "min": 250,
+      "max": 30000
+    },
+    "showDecisions": {
+      "type": "boolean",
+      "title": "Show each decision",
+      "description": "Also show each routing decision as a toast. Decisions are always written to Claude Code's debug log.",
+      "default": false
+    },
+    "assumedInputTokens": {
+      "type": "number",
+      "title": "Assumed input tokens per subagent run",
+      "description": "Only for the cost estimate in the ledger: real token counts are unknown when a subagent starts, so the saving or extra cost of a model change is computed for a run of this many input tokens at list prices, no caching. Default 60000.",
+      "default": 60000,
+      "min": 0,
+      "max": 100000000
+    },
+    "assumedOutputTokens": {
+      "type": "number",
+      "title": "Assumed output tokens per subagent run",
+      "description": "Only for the cost estimate in the ledger: output tokens of the assumed run (see the input option). Default 6000.",
+      "default": 6000,
+      "min": 0,
+      "max": 100000000
+    },
+    "routedAgentTypes": {
+      "type": "string",
+      "title": "Agent types to route",
+      "description": "Comma-separated agent types the router may move to another model: exact names or a prefix ending in * (for example lab:*). Only these are routed. Built-in Explore and Plan may default to a cheaper model than the main chat, so they are left alone unless you list them; a listed type other than general-purpose is only ever moved UP (never counted as a saving), because its own default model is unknown. Skip list wins.",
+      "default": "general-purpose"
+    },
+    "skipAgentTypes": {
+      "type": "string",
+      "title": "Agent types never to route",
+      "description": "Comma-separated agent types the router never touches: exact names or a prefix ending in * (for example lab:*). Wins over the route list. Empty by default.",
+      "default": ""
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "cnu-mods",
+  "owner": { "name": "Srinivasan Rangarajan" },
+  "plugins": [
+    { "name": "cache-clock", "source": "./plugins/cache-clock" },
+    { "name": "handoff", "source": "./plugins/handoff" },
+    { "name": "input-router", "source": "./plugins/input-router" },
+    { "name": "research-router", "source": "./plugins/research-router" },
+    { "name": "model-router", "source": "./plugins/model-router" },
+    { "name": "effort-optimizer", "source": "./plugins/effort-optimizer" },
+    { "name": "savings-proof", "source": "./plugins/savings-proof" },
+    { "name": "mods", "source": "./plugins/mods" }
+  ]
+}

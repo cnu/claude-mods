@@ -1,0 +1,17 @@
+{
+  "name": "mods",
+  "version": "0.1.0",
+  "description": "One place to see the mods installed on this machine, with name, version, description and enabled state, an on/off control per mod, and an Open button for mods that have their own pane.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "userConfig": {
+    "allowWithoutBackup": {
+      "type": "boolean",
+      "title": "Allow changes without a backup",
+      "description": "By default the mod refuses to change your settings file if it cannot first save a backup copy next to it. Turn this on to accept the change anyway when the backup fails.",
+      "default": false
+    }
+  },
+  "types": "./types/index.d.ts"
+}

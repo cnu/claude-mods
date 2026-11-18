@@ -1,0 +1,46 @@
+{
+  "name": "effort-optimizer",
+  "version": "0.1.0",
+  "description": "Picks a reasoning effort for each prompt from four cheap questions: offers a one-line switch (suggest mode) or switches by itself (auto mode), with a cooldown so the prompt cache is not churned.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "mode": {
+      "type": "string",
+      "title": "Mode",
+      "description": "suggest: show a Switch button when a different effort fits the prompt. auto: switch by itself and toast. off: do nothing. Change at runtime with /effort-optimizer.",
+      "default": "suggest",
+      "options": ["suggest", "auto", "off"]
+    },
+    "useModel": {
+      "type": "boolean",
+      "title": "Ask a small model too",
+      "description": "Also send each prompt to a small model (haiku) for the four yes/no answers, and combine them with the built-in rules. This sends your prompt text in one extra cheap request per prompt. Off by default.",
+      "default": false
+    },
+    "cooldownTurns": {
+      "type": "number",
+      "title": "Cooldown (turns)",
+      "description": "After a switch, do not downgrade or move sideways again for this many turns (an upgrade for a riskier prompt is never held back). A mid-chat effort change can invalidate the prompt cache, so keep this above 1.",
+      "default": 2,
+      "min": 1,
+      "max": 50
+    },
+    "respectManual": {
+      "type": "boolean",
+      "title": "Respect a level you set yourself",
+      "description": "In auto mode, never override an effort level you changed yourself since the session began.",
+      "default": true
+    },
+    "manualHoldTurns": {
+      "type": "number",
+      "title": "Manual hold (turns)",
+      "description": "How many turns a level you set yourself is respected in auto mode. After that the mod may switch again. 0 keeps it until /clear. An upgrade for a high-risk prompt (up to xhigh) is applied even during the hold.",
+      "default": 10,
+      "min": 0,
+      "max": 1000
+    }
+  }
+}

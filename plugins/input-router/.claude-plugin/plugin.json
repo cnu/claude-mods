@@ -1,0 +1,86 @@
+{
+  "name": "input-router",
+  "version": "0.1.0",
+  "description": "Oversized Read, MCP and (opt-in) Bash results go to a cheap model first; the main model gets a fenced digest and a path to the full copy.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "minChars": {
+      "type": "number",
+      "title": "Routing threshold (chars)",
+      "description": "Results at or below this size are never routed.",
+      "default": 12000,
+      "min": 0
+    },
+    "helperModel": {
+      "type": "string",
+      "title": "Digest model",
+      "description": "Model alias (e.g. haiku) or full id that writes digests.",
+      "default": "haiku"
+    },
+    "timeoutMs": {
+      "type": "number",
+      "title": "Digest deadline (ms)",
+      "description": "No digest by then: the raw result is delivered unchanged.",
+      "default": 20000,
+      "min": 1000,
+      "max": 120000
+    },
+    "maxNoteChars": {
+      "type": "number",
+      "title": "Digest cap (chars)",
+      "description": "Digests longer than this are truncated.",
+      "default": 4000,
+      "min": 200,
+      "max": 20000
+    },
+    "excludeGlobs": {
+      "type": "string",
+      "title": "Never-route globs",
+      "description": "Comma-separated. Checked against a Read's path (slash-free globs also against the base name) and against MCP tool names (mcp__server__tool); Bash when routeBash is on. e.g. **/*.lock, mcp__github__*",
+      "default": ""
+    },
+    "alwaysWholeGlobs": {
+      "type": "string",
+      "title": "Always-raw globs",
+      "description": "Comma-separated, added to the built-in set (CLAUDE.md, CLAUDE.local.md, SKILL.md, MEMORY.md, any .claude folder). Case-sensitive; * and ? stay within one segment; ** spans folders; slash-free = base name. e.g. **/prompts/*.md, *.policy",
+      "default": ""
+    },
+    "routeBash": {
+      "type": "boolean",
+      "title": "Route Bash stdout",
+      "description": "Off by default. On: a finished Bash command with oversized stdout is digested and its stdout saved as a full copy. Failed, interrupted, backgrounded or timed-out runs stay raw; stderr is never altered.",
+      "default": false
+    },
+    "retentionDays": {
+      "type": "number",
+      "title": "Full-copy retention (days)",
+      "description": "At session start, saved MCP/Bash full copies older than this are emptied (the API cannot delete files). 0 = keep forever.",
+      "default": 7,
+      "min": 0,
+      "max": 3650
+    },
+    "minEstimatedSavingUsd": {
+      "type": "number",
+      "title": "Minimum estimated saving (USD)",
+      "description": "Before calling the helper, a result is left raw when its estimated dollar impact (source tokens at the session model's input price minus the helper's input tokens at the helper model's price) is below this. 0 skips results where the helper's price is above the session model's (a cheap session model with a dearer helper); raise it to route less, negative to route more. Not applied when a model's price is unknown, for subagent calls (their model is not exposed), or when both prices are equal and routeWhenSamePrice is on.",
+      "default": 0,
+      "min": -1000,
+      "max": 1000
+    },
+    "routeWhenSamePrice": {
+      "type": "boolean",
+      "title": "Route when prices are equal",
+      "description": "On by default. When the session model and the helper model have the same input price, skip the dollar screen (it would always say no, since the helper reads the source at the same price). Routing then only pays off if the digest is reused over many later turns. Off: equal prices never route unless minEstimatedSavingUsd is negative.",
+      "default": true
+    },
+    "saveFullCopies": {
+      "type": "boolean",
+      "title": "Save full copies",
+      "description": "On by default. Off: no MCP/Bash result is written to disk, so those results are delivered raw instead of digested. Reads are unaffected.",
+      "default": true
+    }
+  }
+}

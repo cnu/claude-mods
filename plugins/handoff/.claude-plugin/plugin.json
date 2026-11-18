@@ -1,0 +1,34 @@
+{
+  "name": "handoff",
+  "version": "0.1.0",
+  "description": "Offers to carry a huge chat into a fresh one: when the context passes a threshold (or you run /refresh) it has the model write a handoff note, saves it under ~/.claude/handoffs, and lets you copy it or start a new chat with it.",
+  "author": {
+    "name": "Srinivasan Rangarajan"
+  },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "thresholdTokens": {
+      "type": "number",
+      "title": "Offer threshold (tokens)",
+      "description": "When the chat holds at least this many tokens after a turn, offer a refresh (a handoff note and a fresh chat). Offered once per crossing.",
+      "default": 250000,
+      "min": 1000
+    },
+    "snoozeTurns": {
+      "type": "number",
+      "title": "Snooze after Not now (turns)",
+      "description": "How many of your turns to stay quiet after you press Not now before offering again. 0 offers again after the next turn.",
+      "default": 5,
+      "min": 0,
+      "max": 100
+    },
+    "maxHandoffChars": {
+      "type": "number",
+      "title": "Max handoff length (characters)",
+      "description": "Upper bound on the handoff note. The model is asked to stay under it and anything longer is cut.",
+      "default": 12000,
+      "min": 1000,
+      "max": 100000
+    }
+  }
+}
