@@ -34,7 +34,7 @@ import {
   readTextOf,
 } from './logic'
 import { isLedgerLine, ledgerFileName, parseLedger, safeSessionId } from './ledger'
-import { CMD_FULL_ARMED, CMD_FULL_REFUSED, FENCE_CLOSE, FENCE_OPEN, PANE_EMPTY, QUOTE } from './strings'
+import { CMD_FULL_ARMED, CMD_FULL_REFUSED, FENCE_CLOSE, FENCE_OPEN, PANE_EMPTY, PANE_TITLE, QUOTE } from './strings'
 
 // ---------- fixtures ----------
 
@@ -990,6 +990,7 @@ describe('pane', () => {
   test('shows an empty state before any hand-off', async ($, on) => {
     engine(on)
     const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Text', text: /^input-router digests$/ }))?.text).toBe(PANE_TITLE)
     expect((await ui.find({ type: 'Text', text: /idle/ }))?.text).toBe(PANE_EMPTY)
     await ui.unmount()
   })
@@ -1544,7 +1545,7 @@ describe('subagent calls', () => {
     expect(line.tokensAvoided > 0).toBe(true)
     expect(line.helperTokens).toBe(20)
     expect('costUsdEstimate' in line).toBe(false)
-    expect(line.note.includes('subagent: price unknown')).toBe(true)
+    expect(line.note.includes('price unknown for a subagent')).toBe(true)
     const ui = await $.ui.mount({ ...WASTE_PANE })
     expect((await ui.find({ type: 'Text', text: /digests:/ }))?.text.includes('est $?')).toBe(true)
     await ui.unmount()

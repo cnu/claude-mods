@@ -204,9 +204,12 @@ describe('the pane', () => {
     const r = rig(on)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await openPane($, surface)
-      expect((await ui.find({ type: 'Text', text: /alpha 1\.0\.1 - enabled/ }))?.text).toMatch(/market/)
+      expect(await ui.find({ type: 'Text', text: /^alpha 1\.0\.1$/ })).toBeTruthy()
+      expect(await ui.find({ type: 'Text', text: /\(market\)/ })).toBeTruthy()
+      expect(await ui.find({ type: 'Text', text: /^ enabled$/ })).toBeTruthy()
       expect(await ui.find({ type: 'Text', text: /Alpha does things/ })).toBeTruthy()
-      expect(await ui.find({ type: 'Text', text: /beta 2\.0\.0 - disabled/ })).toBeTruthy()
+      expect(await ui.find({ type: 'Text', text: /^beta 2\.0\.0$/ })).toBeTruthy()
+      expect(await ui.find({ type: 'Text', text: /^ disabled$/ })).toBeTruthy()
       expect(await ui.find({ type: 'Text', text: /restart/ })).toBeTruthy()
       // broken record entry (no install path) is skipped, the mods mod has no toggle
       expect(await ui.find({ key: 'toggle-mods@mine' })).toBeFalsy()
@@ -328,7 +331,7 @@ describe('the pane', () => {
     const r = rig(on)
     r.sources.policy = { enabledPlugins: { 'alpha@market': false } }
     const ui = await openPane($, 'terminal')
-    expect(await ui.find({ type: 'Text', text: /alpha 1\.0\.1 - disabled \(off in managed policy settings\)/ })).toBeTruthy()
+    expect(await ui.find({ type: 'Text', text: /^ disabled \(off in managed policy settings\)$/ })).toBeTruthy()
     expect(await ui.find({ type: 'Text', text: /not visible to this mod/ })).toBeFalsy()
     await ui.press({ key: 'toggle-alpha@market' })
     expect(await ui.find({ type: 'Text', text: /managed policy settings, and that wins over user settings/ })).toBeTruthy()
@@ -365,8 +368,8 @@ describe('the pane', () => {
       '/proj/.claude/settings.local.json': JSON.stringify({ enabledPlugins: { 'beta@market': false } }),
     })
     const ui = await openPane($, 'terminal')
-    expect(await ui.find({ type: 'Text', text: /alpha 1\.0\.1 - disabled \(off in project settings\)/ })).toBeTruthy()
-    expect(await ui.find({ type: 'Text', text: /beta 2\.0\.0 - disabled \(off in local settings\)/ })).toBeTruthy()
+    expect(await ui.find({ type: 'Text', text: /^ disabled \(off in project settings\)$/ })).toBeTruthy()
+    expect(await ui.find({ type: 'Text', text: /^ disabled \(off in local settings\)$/ })).toBeTruthy()
     expect(await ui.find({ type: 'Text', text: /wins over user settings/ })).toBeTruthy()
     // an override disabled alpha, so it gets no Open button
     expect(await ui.find({ key: 'open-alpha@market-alpha' })).toBeFalsy()
@@ -381,7 +384,7 @@ describe('the pane', () => {
   test('a project-scope enable shows as enabled', async ($, on) => {
     rig(on, { '/proj/.claude/settings.json': JSON.stringify({ enabledPlugins: { 'beta@market': true } }) })
     const ui = await openPane($, 'terminal')
-    expect(await ui.find({ type: 'Text', text: /beta 2\.0\.0 - enabled \(on in project settings\)/ })).toBeTruthy()
+    expect(await ui.find({ type: 'Text', text: /^ enabled \(on in project settings\)$/ })).toBeTruthy()
     await ui.unmount()
   })
 

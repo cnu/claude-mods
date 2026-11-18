@@ -161,7 +161,7 @@ own `try`, so none of them can change what the model receives.
 - `/input-router full` lets the next large result through whole, once. It is
   taken only from the person, meaning a prompt origin of `composer`, `bridge`
   or `sdk`. A plugin-raised run is refused.
-- The **input-router digests** pane lists each hand-off in this session: tool,
+- The **input-router digests** pane (its name in bold over a dim rule) lists each hand-off in this session: tool,
   target (file path, `mcp:server/tool` or `sh:program`), characters in,
   characters out, and three separate numbers side by side: tokens `avoided`
   (gross, kept out of the main context), tokens the `helper` spent, and the
@@ -337,7 +337,7 @@ similarity test; review `hooks/strings.ts` directly.
   the main loop's model and the API does not expose a subagent's (an `AgentInfo`
   has no model), so a subagent call is not priced at the main model: the
   pre-call dollar screen is skipped, `costUsdEstimate` is left out of its
-  `tokens-avoided` line, the note says `subagent: price unknown` and the pane
+  `tokens-avoided` line, the note says `price unknown for a subagent` and the pane
   shows `$?`. Its tokens avoided and helper tokens are still logged. A wasted
   helper call from a subagent still has a dollar figure (helper price only).
 - **Bash: no exit code in the result.** The Bash result record the API types

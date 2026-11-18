@@ -122,7 +122,7 @@ async function record(
     if (ctx.settings.showDecisions) {
       const line =
         d?.model !== undefined
-          ? `model-router: ${e.subagentType} -> ${chosen} (${c?.tier ?? '?'}, ${conf})`
+          ? `model-router: ${e.subagentType} -> ${chosen} (${c?.tier ?? '?'}, confidence ${conf})`
           : `model-router: ${e.subagentType} unchanged (${status})`
       $.ui.toast(line)
     }

@@ -245,24 +245,34 @@ export const register: Register = (on, options) => {
     const list = await read($, rows)
     const line = await read($, notice)
     const seesManaged = await read($, managedReadable)
+    const rule = '─'.repeat(Math.min(Math.max(24, e.props.bodyColumns), 60))
+    const stateColor = (r: Row) => (r.pending !== null || r.isOverridden ? 'warning' : r.isEnabled ? 'success' : undefined)
 
     return (
       <Box flexDirection="column">
+        <Text>
+          <Text bold color="claude">Mods</Text>
+          <Text dimColor>{` (${list.length} installed)`}</Text>
+        </Text>
+        <Text dimColor>{rule}</Text>
         <Text dimColor>
           On/off edits the enabled-plugins setting in your settings file (no per-chat toggle exists). A change loads after a restart.
         </Text>
-        {!seesManaged && <Text dimColor>{`Note: ${MANAGED_HIDDEN}; states below ignore any managed policy.`}</Text>}
+        {!seesManaged && <Text color="warning">{`Note: ${MANAGED_HIDDEN}; states below ignore any managed policy.`}</Text>}
+        <Text dimColor>{rule}</Text>
         {list.length === 0 && <Text dimColor>No mods listed.</Text>}
         {list.map(r => (
           <Box key={r.id} flexDirection="column">
             <Text>
-              {r.name} {r.version} - {r.pending === null ? (r.isEnabled ? 'enabled' : 'disabled') : `user setting now ${r.pending ? 'on' : 'off'}, read after restart`}
-              {r.scopeNote !== '' ? ` (${r.scopeNote})` : ''}
-              {r.marketplace ? ` (${r.marketplace})` : ''}
+              <Text bold>{`${r.name} ${r.version}`}</Text>
+              <Text color={stateColor(r)} dimColor={stateColor(r) === undefined}>
+                {` ${r.pending === null ? (r.isEnabled ? 'enabled' : 'disabled') : `user setting now ${r.pending ? 'on' : 'off'}, read after restart`}${r.scopeNote !== '' ? ` (${r.scopeNote})` : ''}`}
+              </Text>
+              {r.marketplace ? <Text dimColor>{` (${r.marketplace})`}</Text> : null}
             </Text>
             {r.description !== '' && <Text dimColor>{oneLine(r.description, 110)}</Text>}
             {r.isOverridden && (
-              <Text dimColor>{`${r.scopeNote}: that wins over user settings. The button below edits user settings only.`}</Text>
+              <Text color="warning">{`${r.scopeNote}: that wins over user settings. The button below edits user settings only.`}</Text>
             )}
             {r.isSelf ? (
               <Text dimColor>This is the mods mod; switch it off by hand if you need to.</Text>
@@ -281,6 +291,7 @@ export const register: Register = (on, options) => {
         <Button key="refresh" onPress={() => load($)}>
           Refresh
         </Button>
+        {line !== '' && <Text dimColor>{rule}</Text>}
         {line !== '' && <Text dimColor>{line}</Text>}
       </Box>
     )

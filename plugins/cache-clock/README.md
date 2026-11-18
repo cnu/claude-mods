@@ -18,7 +18,7 @@ clock, mocked model). It has not been loaded into a live session.
 A band above the prompt (terminal and desktop):
 
 - `cache warm 4:10 (180k tokens)` counts down from the cache lifetime (see "Cache lifetime" below) after each
-  model response. It turns yellow in the last minute, then reads `cache cold`.
+  model response. It changes to the warning colour in the last minute, then reads `cache cold`.
 - A **Keep warm** button toggles pings. The label shows `on (n/max)` when on.
 - When the cache is cold and the chat holds at least `handoffTokens`, a line
   offers a fresh chat with a handoff summary. If the handoff mod is installed

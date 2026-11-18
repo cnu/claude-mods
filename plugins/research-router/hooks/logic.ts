@@ -175,8 +175,8 @@ export const estimateTokens = (chars: number) => Math.ceil(Math.max(0, chars) / 
  */
 export const RESEARCH_READ_SHARE = 0.25
 
-/** Characters the fence markers, line prefixes and the mod's note add around the helper text (an estimate). */
-export const WRAP_CHARS = 400
+/** Characters the fence markers, line prefixes and the mod's note add around the helper text: about 500 measured for the delivered wrapper, plus 2 per quoted line, rounded up to 600 (an estimate). */
+export const WRAP_CHARS = 600
 
 /**
  * List input price, USD per million tokens, by model family. Copied (read-only) from
@@ -397,7 +397,7 @@ export function buildCondensed(o: {
 // ---- /research-router ----
 
 export const USAGE =
-  'Usage: /research-router <question>. Runs a short web research job on a cheap model and puts only the brief, with source URLs, in this chat.'
+  'Usage: /research-router <question> - runs a short web research job on a cheap model; only the brief, with source URLs, enters this chat'
 
 export const PLAN_SYSTEM = [
   'You split a research question into independent parts for parallel web research.',

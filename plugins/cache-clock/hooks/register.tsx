@@ -103,8 +103,8 @@ async function ping($: EngineInterface, ctx: Ctx) {
         const { source } = await currentTtl($, ctx)
         $.ui.toast(
           source === 'option'
-            ? 'cache-clock: the ping found the cache already cold. Is ttlMinutes longer than your host keeps it?'
-            : 'cache-clock: the ping found the cache already cold, so the cache lasts less than the lifetime shown. Set ttlMinutes to override it.',
+            ? 'cache-clock: the ping found the cache already cold; is ttlMinutes longer than your host keeps it?'
+            : 'cache-clock: the ping found the cache already cold, so it lasts less than the lifetime shown; set ttlMinutes to override it',
         )
       }
       return
@@ -112,7 +112,7 @@ async function ping($: EngineInterface, ctx: Ctx) {
     ctx.failures += 1
     if (ctx.failures >= MAX_PING_FAILURES) {
       await update($, keepWarm, () => false)
-      $.ui.toast(`cache-clock: keep warm switched off after ${ctx.failures} failed pings (${r.isAnswered ? 'no cache activity' : r.reason}).`)
+      $.ui.toast(`cache-clock: keep warm switched off after ${ctx.failures} failed pings (${r.isAnswered ? 'no cache activity' : r.reason})`)
     }
   } catch {
     ctx.failures += 1
@@ -161,7 +161,7 @@ async function tick($: EngineInterface, ctx: Ctx) {
       await update($, handoffCommand, () => cmd?.name ?? null)
       if (!cmd && !ctx.isOfferToasted) {
         ctx.isOfferToasted = true
-        $.ui.toast('Cache is cold and this chat is big: start a fresh chat with a handoff summary to save tokens.', {
+        $.ui.toast('cache-clock: cache is cold and this chat is big, so start a fresh chat with a handoff summary to save tokens', {
           timeoutMs: 8000,
         })
       }
@@ -277,7 +277,7 @@ export const register: Register = (on, options) => {
     return (
       <Box flexDirection="column">
         <Box>
-          <Text color={isWarm ? (left < 60_000 ? 'yellow' : 'green') : 'red'}>
+          <Text color={isWarm ? (left < 60_000 ? 'warning' : 'success') : 'error'}>
             {isWarm ? `cache warm ${formatClock(left)}` : 'cache cold'}
           </Text>
           <Text dimColor>{` (${Math.round(tok / 1000)}k tokens) `}</Text>
@@ -288,7 +288,7 @@ export const register: Register = (on, options) => {
           />
         </Box>
         {hasOffer ? (
-          <Text dimColor>
+          <Text color="warning">
             {cmd
               ? `Cold and big: start a fresh chat with a handoff summary (/${cmd}).`
               : 'Cold and big: consider a fresh chat with a handoff summary (no handoff command found).'}

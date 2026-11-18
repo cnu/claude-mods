@@ -461,6 +461,20 @@ describe('the pane', () => {
     }
   })
 
+  test('a narrow pane clamps the header and each per-mod row to its columns', async ($, on) => {
+    rig(on, { [`${DIR}/a.jsonl`]: line({ mod: 'input-router', tokensAvoided: 12000, helperTokens: 1500, costUsdEstimate: 0.036 }) })
+    await $.session.start(START)
+    await runSavings($)
+    const ui = await $.ui.mount({ ...PANE, props: { ...PANE.props, bodyColumns: 30 }, surface: 'terminal' })
+    const header = await ui.find({ type: 'Text', text: /^Mod/ })
+    const row = await ui.find({ type: 'Text', text: /^input-/ })
+    expect(header).toBeTruthy()
+    expect(row).toBeTruthy()
+    expect((header?.text ?? '').length).toBeLessThanOrEqual(30)
+    expect((row?.text ?? '').length).toBeLessThanOrEqual(30)
+    await ui.unmount()
+  })
+
   test('no ledger folder: "no data yet"', async ($, on) => {
     rig(on, {}, { noDir: true })
     await $.session.start(START)

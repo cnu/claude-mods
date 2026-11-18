@@ -35,7 +35,7 @@ import type { Settings, Source, WorkerOutcome } from './logic'
 
 const PLUGIN = 'research-router'
 const COMMAND = 'research-router'
-const FAILED = 'research-router: the research job failed; nothing was added. Try again, or search directly.'
+const FAILED = 'research-router: the research job failed and added nothing; try again, or search directly.'
 
 // Per-load bookkeeping shared by the hooks. The engine's validator follows `$` only into top-level
 // function declarations, so the helpers below are those and take `ctx`.
@@ -124,7 +124,7 @@ async function afterWeb(
     kind: 'tokens-avoided',
     tokensAvoided: avoided,
     ...savings(ctx, avoided, spent, main),
-    note: `${tool} result condensed from ${original.length} to ${delivered} chars delivered. ${priceNote(ctx, main)}`,
+    note: `${tool} result condensed from ${original.length} to ${delivered} chars delivered; ${priceNote(ctx, main)}`,
   })
   const out = { result } as ToolCallResult<WebTool>
   return r.context !== undefined ? ({ ...out, context: r.context } as ToolCallResult<WebTool>) : out
@@ -163,7 +163,7 @@ async function logLoss($: EngineInterface, ctx: Ctx, tool: WebTool, spent: numbe
   await addEntry($, ctx.ledger, {
     kind: 'cost-upgrade',
     ...savings(ctx, 0, spent, main),
-    note: `${tool} result kept whole (${why}); the helper call kept nothing out. ${priceNote(ctx, main)}`,
+    note: `${tool} result kept whole (${why}), so the helper call kept nothing out; ${priceNote(ctx, main)}`,
   })
 }
 
@@ -416,7 +416,7 @@ async function research($: EngineInterface, ctx: Ctx, question: string): Promise
   const main = await mainModel($)
   const note =
     `/research-router: ${outcomes.length} worker(s), ${read} chars read by workers that answered (${RESEARCH_READ_SHARE * 100}% counted), ` +
-    `${brief.length} char brief. ${priceNote(ctx, main)}`
+    `${brief.length}-char brief; ${priceNote(ctx, main)}`
   if (avoided > 0) await addEntry($, ctx.ledger, { kind: 'tokens-avoided', tokensAvoided: avoided, ...savings(ctx, avoided, spent, main), note })
   else if (spent > 0) await addEntry($, ctx.ledger, { kind: 'cost-upgrade', ...savings(ctx, 0, spent, main), note })
   else await addEntry($, ctx.ledger, { kind: 'info', note })

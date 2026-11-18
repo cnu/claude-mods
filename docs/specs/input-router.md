@@ -34,7 +34,7 @@ path to the full thing.
    unknown). The note names both models.
    Subagent calls: `$.session.model()` is the main loop's model and the API does not expose a subagent's,
    so a subagent call is not priced at the main model: no `costUsdEstimate`, the note says
-   `subagent: price unknown`, and the pre-call screen (7) is skipped.
+   `price unknown for a subagent`, and the pre-call screen (7) is skipped.
    Wasted calls: kind `cost-upgrade`, `helperTokens` as above, no `tokensAvoided`,
    `costUsdEstimate` = -helper * helperModelInputPrice (negative; omitted when the helper price is unknown;
    known for subagents too), note = the reason, no content. An unanswered call with all-zero reported usage

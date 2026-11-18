@@ -225,7 +225,7 @@ What is estimated, and how:
   of a page that keeps 1,000 tokens out at a cost of 1,500 helper tokens is
   about +0.00385 USD.
 - **Skip gate.** Before calling the helper, the mod estimates avoided =
-  `ceil(original / 4) - ceil((target + 400 + kept hit chars) / 4)` (target =
+  `ceil(original / 4) - ceil((target + 600 + kept hit chars) / 4)` (target =
   the length the helper is asked for, 1,000 to 6,000 characters) and helper
   = `ceil(prompt chars / 4) + ceil(target / 4)`. It skips condensing when
   avoided is 0 or less, or when both prices are known and the dollar net

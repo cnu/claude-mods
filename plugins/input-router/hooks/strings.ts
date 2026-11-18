@@ -122,7 +122,7 @@ export const ledgerNote = (a: { tool: string; target: string; inChars: number; o
   (a.isPriced
     ? `est $ = avoided*price(${a.mainModel}) - helper*price(${a.helperModel}), list input prices`
     : a.isSubagent === true
-      ? `no est $: subagent: price unknown (the subagent's model is not exposed), helper=${a.helperModel}`
+      ? `no est $: price unknown for a subagent (its model is not exposed), helper=${a.helperModel}`
       : `no est $: price unknown for main=${a.mainModel || 'unknown'} or helper=${a.helperModel}`)
 /** Ledger `note` of a `cost-upgrade` line: a helper call whose digest was not used. Never contents. */
 export const wastedNote = (a: { tool: string; target: string; inChars: number; helper: number; helperModel: string; reason: string; isPriced: boolean }): string =>

@@ -337,6 +337,7 @@ export const register: Register = (on, options) => {
     const { Box, Button, Text } = $.ui.resolve(e)
     return (
       <Box>
+        <Text bold color="claude">Effort </Text>
         <Text dimColor>{`This prompt looks like: ${why}. `}</Text>
         <Button
           key="switch"

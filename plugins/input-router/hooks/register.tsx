@@ -608,7 +608,7 @@ export const register: Register = (on, options) => {
     const list = await read($, handoffs)
     const armed = await read($, isFullArmed)
     const width = Math.max(30, e.props.bodyColumns)
-    const room = Math.max(1, (e.viewport?.rows ?? 24) - 4)
+    const room = Math.max(1, (e.viewport?.rows ?? 24) - 6)
     const wasted = list.filter(one => one.wasted !== undefined).length
     const avoided = list.reduce((sum, one) => sum + one.tokensAvoided, 0)
     const helper = list.reduce((sum, one) => sum + one.helperTokens, 0)
@@ -617,8 +617,10 @@ export const register: Register = (on, options) => {
 
     return (
       <Box flexDirection="column">
+        <Text bold color="claude">{PANE_TITLE}</Text>
+        <Text dimColor>{'\u2500'.repeat(Math.min(width, 60))}</Text>
         <Text bold>{paneHead(list.length - wasted, avoided, helper, usd, wasted)}</Text>
-        {armed && ctx.isFullArmed ? <Text color="yellow">{PANE_ARMED}</Text> : null}
+        {armed && ctx.isFullArmed ? <Text color="warning">{PANE_ARMED}</Text> : null}
         {list.length === 0 ? <Text dimColor>{PANE_EMPTY}</Text> : null}
         {list.slice(-room).map(one => (
           <Text>{formatHandoff(one, width)}</Text>

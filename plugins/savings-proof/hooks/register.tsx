@@ -175,7 +175,7 @@ export const register: Register = (on, options) => {
     await $.ui.open({ id: PANE, title: 'Savings (estimated)' })
     await refresh($, ctx, true)
     startPoll($, ctx)
-    return { text: 'Savings pane opened. Every figure in it is an estimate.' }
+    return { text: 'Savings pane opened (all figures are estimates).' }
   })
 
   // The status line follows new ledger lines at the end of each turn (no timer while the pane is shut).
@@ -206,10 +206,16 @@ export const register: Register = (on, options) => {
     const cols = Math.max(24, e.props.bodyColumns)
     const s: Summary | null = parseSnapshot(text)
 
+    const rule = '─'.repeat(Math.min(cols, 60))
+
     if (s === null || isEmpty(s)) {
       return (
         <Box flexDirection="column">
-          <Text bold>Savings (estimated)</Text>
+          <Text>
+            <Text bold color="claude">Savings</Text>
+            <Text dimColor> (estimated)</Text>
+          </Text>
+          <Text dimColor>{rule}</Text>
           <Text dimColor>no data yet</Text>
           <Text dimColor>The other mods write their ledger under ~/.claude/claude-mods/ledger/ once they have saved something.</Text>
           {s !== null && s.skipped > 0 ? <Text dimColor>{`${s.skipped} unreadable ledger line(s) skipped.`}</Text> : null}
@@ -225,25 +231,40 @@ export const register: Register = (on, options) => {
     const wNo = 5
     const wMod = Math.max(8, Math.min(24, cols - wEv - wTok * 2 - wUsd - wNo - 5))
 
+    const usdColor = (usd: number) => (usd < 0 ? 'error' : usd > 0 ? 'success' : undefined)
+
     return (
       <Box flexDirection="column">
-        <Text bold>Savings (estimated)</Text>
-        <Text>{fit(`Today:     ${s.today.events} events, ${figures(s.today, settings)}`, cols)}</Text>
+        <Text>
+          <Text bold color="claude">Savings</Text>
+          <Text dimColor> (estimated)</Text>
+        </Text>
+        <Text dimColor>{rule}</Text>
+        <Text bold>{fit(`Today:     ${s.today.events} events, ${figures(s.today, settings)}`, cols)}</Text>
         <Text>{fit(`This chat: ${s.session.events} events, ${figures(s.session, settings)}`, cols)}</Text>
         <Text dimColor>{fit(`All time:  ${s.all.events} events, ${figures(s.all, settings)}`, cols)}</Text>
         <Text> </Text>
-        <Text bold>{fit(`${pad('Mod', wMod)} ${padLeft('Events', wEv)} ${padLeft('Avoided', wTok)} ${padLeft('Helper', wTok)} ${padLeft(estLabel(settings), wUsd)} ${padLeft('No $', wNo)}`, cols)}</Text>
-        {s.perMod.map(r => (
-          <Text>
-            {fit(
-              `${pad(r.mod, wMod)} ${padLeft(String(r.events), wEv)} ${padLeft(formatTokens(r.avoided), wTok)} ${padLeft(formatTokens(r.helper), wTok)} ${padLeft(labelledMoney(r.usd, settings), wUsd)} ${padLeft(String(r.noUsd), wNo)}`,
-              cols,
-            )}
-          </Text>
-        ))}
-        <Text dimColor>per-mod rows cover the whole ledger window; Est. is a signed sum over events with a dollar figure (No $ = events without one); the three figures are kept separate</Text>
+        <Text bold color="suggestion">{fit(`${pad('Mod', wMod)} ${padLeft('Events', wEv)} ${padLeft('Avoided', wTok)} ${padLeft('Helper', wTok)} ${padLeft(estLabel(settings), wUsd)} ${padLeft('No $', wNo)}`, cols)}</Text>
+        <Text dimColor>{rule}</Text>
+        {s.perMod.map(r => {
+          const plain = `${pad(r.mod, wMod)} ${padLeft(String(r.events), wEv)} ${padLeft(formatTokens(r.avoided), wTok)} ${padLeft(formatTokens(r.helper), wTok)} ${padLeft(labelledMoney(r.usd, settings), wUsd)} ${padLeft(String(r.noUsd), wNo)}`
+          // A pane narrower than the full row gets one plain clamped string (nested spans cannot be cut).
+          if (cols < plain.length) return <Text>{fit(plain, cols)}</Text>
+          return (
+            <Text>
+              <Text bold>{pad(r.mod, wMod)}</Text>
+              {` ${padLeft(String(r.events), wEv)} `}
+              <Text color="success">{padLeft(formatTokens(r.avoided), wTok)}</Text>
+              {` ${padLeft(formatTokens(r.helper), wTok)} `}
+              <Text color={usdColor(r.usd)}>{padLeft(labelledMoney(r.usd, settings), wUsd)}</Text>
+              {` ${padLeft(String(r.noUsd), wNo)}`}
+            </Text>
+          )
+        })}
+        <Text dimColor>{fit('Rows cover the whole ledger window. Est. is a signed sum over events with a dollar figure; No $ counts the rest. Tokens and dollars are kept separate.', cols)}</Text>
         <Text> </Text>
-        <Text bold>Last {s.recent.length} events</Text>
+        <Text bold color="suggestion">{`Last ${s.recent.length} events`}</Text>
+        <Text dimColor>{rule}</Text>
         {s.recent.map(r => (
           <Text dimColor={r.kind === 'info'}>
             {fit(
@@ -256,7 +277,7 @@ export const register: Register = (on, options) => {
           <Text dimColor>{`${s.skipped} bad line(s) skipped, ${s.unreadable} file(s) unreadable.`}</Text>
         ) : null}
         <Text dimColor>{fit(windowNote(s), cols)}</Text>
-        <Text dimColor>Refreshes about every 4 s while this pane is open.</Text>
+        <Text dimColor>{fit('Refreshes about every 4 s while open.', cols)}</Text>
       </Box>
     )
   })

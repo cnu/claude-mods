@@ -107,7 +107,7 @@ async function runRefresh($: EngineInterface, ctx: Ctx, isBusy = false): Promise
     }
     const paths = handoffPaths(home, timestampName(at), session)
     logPath = paths.log
-    if (logPath === null) $.ui.toast('No session id, so this run is not logged. The note is still saved.')
+    if (logPath === null) $.ui.toast('handoff: no session id, so this run is not logged; the note is still saved')
 
     // 1. The draft, on disk before the model is asked.
     await setPhase($, 'running', 0, '')
@@ -210,7 +210,7 @@ async function runRefresh($: EngineInterface, ctx: Ctx, isBusy = false): Promise
 // A button's refresh: a refusal has no transcript line to land in, so it is toasted.
 async function pressRefresh($: EngineInterface, ctx: Ctx, isBusy: boolean) {
   const out = await runRefresh($, ctx, isBusy)
-  if (out === 'A refresh is already running.' || out.startsWith('The model is mid-turn')) $.ui.toast(out)
+  if (out === 'A refresh is already running.' || out.startsWith('The model is mid-turn')) $.ui.toast(`handoff: ${out.charAt(0).toLowerCase()}${out.slice(1).replace(/\.$/, '').replace(': press', ', so press')}`)
 }
 
 // The note as text: in memory, else (after a hot reload) from the file of the last run.
@@ -229,7 +229,7 @@ async function copyNote($: EngineInterface, ctx: Ctx, surface: 'terminal' | 'des
   const note = await noteText($, ctx)
   if (note === '') return
   const r = await $.ui.copy({ text: note, surface })
-  $.ui.toast(r.isCopied ? 'Handoff note copied.' : `Could not copy (${r.reason}). It is saved on disk.`)
+  $.ui.toast(r.isCopied ? 'handoff: note copied' : `handoff: could not copy (${r.reason}); the note is saved on disk`)
 }
 
 // Takes back the armed clear button: cancels the timer and redraws the label.
@@ -253,7 +253,7 @@ async function readNoteFromDisk($: EngineInterface, path: string): Promise<strin
 // Toasts where the note is. Never touches the chat.
 async function showNotePath($: EngineInterface) {
   const path = await read($, notePath)
-  $.ui.toast(path === '' ? 'No note file was written yet.' : `Handoff note: ${path}`, { timeoutMs: 8000 })
+  $.ui.toast(path === '' ? 'handoff: no note file written yet' : `handoff: note at ${path}`, { timeoutMs: 8000 })
 }
 
 // "Clear and continue with it" is destructive, so it takes two presses. The first checks the note file is on
@@ -266,8 +266,8 @@ async function startFresh($: EngineInterface, ctx: Ctx, surface: 'terminal' | 'd
     await disarmClear($, ctx)
     $.ui.toast(
       path === ''
-        ? 'The note was not written to disk, so the chat is not cleared. Use Copy note.'
-        : `The note file is missing, empty or changed (${path}), so the chat is not cleared. Use Copy note.`,
+        ? 'handoff: note not written to disk, so the chat is not cleared; use Copy note'
+        : `handoff: note file is missing, empty or changed (${path}), so the chat is not cleared; use Copy note`,
       { timeoutMs: 8000 },
     )
     return
@@ -278,7 +278,7 @@ async function startFresh($: EngineInterface, ctx: Ctx, surface: 'terminal' | 'd
     ctx.armedUntil = now + CONFIRM_WINDOW_MS
     await update($, confirming, () => true)
     ctx.confirmTimer = $.clock.after(CONFIRM_WINDOW_MS, () => disarmClear($, ctx))
-    $.ui.toast(`This clears the current chat. Press the button again within ${CONFIRM_WINDOW_MS / 1000} s to confirm. The note is at ${path}.`, {
+    $.ui.toast(`handoff: this clears the current chat; press the button again within ${CONFIRM_WINDOW_MS / 1000} s to confirm (note at ${path})`, {
       timeoutMs: CONFIRM_WINDOW_MS,
     })
     return
@@ -295,13 +295,13 @@ async function startFresh($: EngineInterface, ctx: Ctx, surface: 'terminal' | 'd
     await update($, tokens, () => 0)
     await update($, notePath, () => '')
     await setPhase($, 'idle', 0, '')
-    $.ui.toast(`Chat cleared. The note is still at ${path}.`)
+    $.ui.toast(`handoff: chat cleared; note at ${path}`)
     const sent = await $.prompt.submit({ text })
     if ('drop' in sent) throw new Error('the first message was dropped by a hook')
   } catch (err) {
     const r = await $.ui.copy({ text, surface })
     $.ui.toast(
-      `Could not continue in a fresh chat (${err instanceof Error ? err.message : 'failed'}). ${r.isCopied ? 'The note is on the clipboard: paste it into the next chat.' : `Use the note on disk: ${path}`}`,
+      `handoff: could not continue in a fresh chat (${err instanceof Error ? err.message : 'failed'}); ${r.isCopied ? 'the note is on the clipboard, paste it into the next chat' : `use the note on disk: ${path}`}`,
       { timeoutMs: 8000 },
     )
   }
@@ -404,7 +404,8 @@ export const register: Register = (on, options) => {
     if (p === 'offer') {
       return (
         <Box flexDirection="column">
-          <Text color="yellow">{`This chat holds ${Math.round(size / 1000)}k tokens (offer threshold ${Math.round(settings.thresholdTokens / 1000)}k). Carry it into a fresh chat?`}</Text>
+          <Text bold color="claude">handoff</Text>
+          <Text color="warning">{`This chat holds ${Math.round(size / 1000)}k tokens (offer threshold ${Math.round(settings.thresholdTokens / 1000)}k). Carry it into a fresh chat?`}</Text>
           <Box>
             <Button key="refresh" label="Refresh" onPress={() => pressRefresh($, ctx, e.props.isWorking)} />
             <Text>{' '}</Text>
@@ -423,16 +424,20 @@ export const register: Register = (on, options) => {
 
     return (
       <Box flexDirection="column">
-        <Text bold>{`Refresh: handoff (${Math.round(size / 1000)}k tokens before)`}</Text>
+        <Text>
+          <Text bold color="claude">handoff</Text>
+          <Text dimColor>{` - refresh (${Math.round(size / 1000)}k tokens before)`}</Text>
+        </Text>
+        <Text dimColor>{'─'.repeat(Math.max(1, Math.min(e.props.bodyColumns, 40)))}</Text>
         {STEPS.map((label, i) => {
           const st = stepStatus(i, p, s)
           return (
-            <Text color={st === 'failed' ? 'red' : st === 'done' ? 'green' : undefined} dimColor={st === 'pending'}>
+            <Text color={st === 'failed' ? 'error' : st === 'done' ? 'success' : st === 'running' ? 'claude' : undefined} dimColor={st === 'pending'}>
               {`${bar(st)} ${label}`}
             </Text>
           )
         })}
-        {text !== '' ? <Text dimColor={p === 'done'} color={p === 'failed' ? 'red' : undefined}>{text}</Text> : null}
+        {text !== '' ? <Text dimColor={p === 'done'} color={p === 'failed' ? 'error' : undefined}>{text}</Text> : null}
         {isEnded ? (
           <Box>
             {hasNote ? (
@@ -469,7 +474,7 @@ async function considerOffer($: EngineInterface, ctx: Ctx, size: number) {
   if (!r.offer || ctx.isRunning || p === 'running' || p === 'done' || p === 'failed') return
   await setPhase($, 'offer', 0, '')
   const cmd = ctx.commandName ? ` (or /${ctx.commandName})` : ''
-  $.ui.toast(`This chat holds ${Math.round(size / 1000)}k tokens. Refresh into a fresh chat with a handoff note?${cmd}`, {
+  $.ui.toast(`handoff: this chat holds ${Math.round(size / 1000)}k tokens; refresh into a fresh chat with a handoff note?${cmd}`, {
     timeoutMs: 8000,
   })
 }
